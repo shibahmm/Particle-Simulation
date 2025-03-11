@@ -1,0 +1,58 @@
+from flask import Flask, request, jsonify, redirect, url_for
+import csv
+import os
+
+app = Flask(__name__)
+
+# file paths
+obstacle_csv_file = 'obstacle.csv'
+
+def load_data(file_path, fieldnames):
+    if not os.path.exists(file_path):
+        return []
+    with open(file_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        return [row for row in reader]
+
+def save_data(file_path, data, fieldnames):
+    with open(file_path, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+
+# initialize data
+obstacles = load_data(obstacle_csv_file, ['id', 'x', 'y','radius'])
+
+@app.route('/obstacle', methods=['GET'])
+def get_obstacles():
+    #make sure id is string and x,y are f;oat
+    for obstacle in obstacles: 
+        obstacle['id'] = str(obstacle['id'])
+        obstacle['x'] = float(obstacle['x']) 
+        obstacle['y'] = float(obstacle['y'])
+        obstacle['radius'] = float(obstacle['radius'])
+    return jsonify(obstacles)
+
+@app.route('/obstacle', methods=['POST'])
+def add_obstacle():
+    global obstacles
+    new_obstacle = request.json
+    #makesure x, y, radius are float in case are input as anything else
+    new_obstacle['x'] = float(new_obstacle['x']) 
+    new_obstacle['y'] = float(new_obstacle['y'])
+    new_obstacle['radius'] = float(new_obstacle['radius']) 
+    obstacles.append(new_obstacle)
+    save_data(obstacle_csv_file, obstacles, ['id', 'x', 'y','radius'])
+    return jsonify({"message": "Obstacle added successfully"})
+
+@app.route('/obstacle/<obstacle_id>', methods=['DELETE'])
+def delete_obstacle(obstacle_id):
+    global obstacles
+    #treat both stored obstacles ids and id from request as strings
+    obstacles = [o for o in obstacles if (o['id']) != str(obstacle_id)]
+    save_data(obstacle_csv_file, obstacles, ['id', 'x', 'y','radius'])
+    return jsonify({"message": "Obstacle deleted successfully"})
+
+#run app
+if __name__ == '__main__':
+    app.run(debug=True)
