@@ -1,5 +1,5 @@
 # **Particle Simulation Project**
-fun stuff but mainly to practice my client/server (API) architecture knowledge
+fun stuff to apply physics and practice my client/server (API) architecture knowledge
 
 **Short Description**: This project is a particle simulation developed in Java & Processing, where particles move and interact with obstacles in a 2D space. You can add, remove particles and manipulate obstacle to visualize dynamic particle physics. The project demonstrates concepts such as velocity, gravity, collision, and boundary detection. Have fun!
 
